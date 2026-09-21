@@ -1,0 +1,34 @@
+# CODEOWNERS: who GitHub asks to review which files.
+# https://docs.github.com/en/repositories/managing-your-repositories-security-and-analysis/about-code-owners
+#
+# A pull request that touches a path below automatically requests a review from
+# that path's owner. This only *blocks* merging when branch protection turns on
+# "Require review from Code Owners". Without that rule it routes reviews; it
+# does not gate them.
+#
+# Two things silently break a CODEOWNERS file, so check both:
+#   - An owner without write access to the repository is ignored.
+#   - Later rules win. The last matching line decides, not the most specific
+#     one (the opposite of .gitignore).
+#
+# On clone: replace @Joehmyers throughout with your own handles or @org/team
+# names. A file full of someone else's username is worse than no file.
+
+# Default owner for anything not matched below.
+*                   @Joehmyers
+
+# Agent configuration. Permissions, hooks, skills, and subagent definitions
+# decide what an agent may do without asking a human first. Review changes here
+# with the same care as any other security configuration.
+/.claude/           @Joehmyers
+/AGENTS.md          @Joehmyers
+/CLAUDE.md          @Joehmyers
+
+# Verification and CI. Everything else trusts these scripts when they say the
+# repo is green, so a weakened check is a silent loss of coverage.
+/ops/               @Joehmyers
+/.github/           @Joehmyers
+
+# Decisions. Accepted records are immutable: a change here is either a new
+# record or a mistake.
+/docs/decisions/    @Joehmyers

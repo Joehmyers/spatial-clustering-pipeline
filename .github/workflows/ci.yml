@@ -1,0 +1,37 @@
+name: CI
+
+# Runs the same command an agent runs before it pushes: ops/check.sh.
+# One verification entrypoint means CI and the agent cannot disagree about
+# whether the repo is green.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Read-only by default; add scopes to a job only when it needs them.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # Add your language toolchain here (actions/setup-node,
+      # actions/setup-python, dtolnay/rust-toolchain, …) before setup runs.
+
+      - name: Install dependencies
+        run: ops/setup.sh
+
+      - name: Verify
+        # Swap in --strict once every step in ops/check.sh is configured, so
+        # an unconfigured check can never pass silently.
+        run: ops/check.sh

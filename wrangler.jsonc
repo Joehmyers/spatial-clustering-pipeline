@@ -1,0 +1,23 @@
+{
+  // Wrangler configuration: https://developers.cloudflare.com/workers/wrangler/configuration/
+  //
+  // Cloud storage for this project is assumed to be Cloudflare R2, managed with
+  // wrangler. The bucket is named after the repository; create it with
+  // `ops/create-bucket.sh` (which runs `wrangler r2 bucket create <repo-name>`).
+  //
+  // On rename: update "name" and each "bucket_name" below to match the new
+  // repository name so the config keeps matching the R2 bucket.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "spatial-clustering-pipeline",
+  "compatibility_date": "2026-07-16",
+
+  // R2 bucket binding. Access it from a Worker as `env.BUCKET`.
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "spatial-clustering-pipeline"
+    }
+  ]
+
+  // Add "main": "src/index.ts" (and your Worker entrypoint) when you deploy a Worker.
+}

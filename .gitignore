@@ -1,0 +1,64 @@
+# Personal agent overrides; never commit
+AGENTS.local.md
+CLAUDE.local.md
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Build artifacts
+dist/
+build/
+*.o
+*.a
+*.so
+*.dll
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+.coverage
+htmlcov/
+
+# Temporary files
+tmp/
+*.tmp
+
+# Local data fetched from Cloudflare R2 (ops/fetch-data.sh)
+data/
+
+# Created assets, pushed to Cloudflare R2 (ops/push-assets.sh)
+assets/
+
+# Test fixtures (tests/fixtures/README.md) are committed whatever they are
+# named: a sample .log file or a build/ tree used as test input must not be
+# dropped by the rules above. Env files stay ignored there as everywhere, so a
+# secret cannot slip in under a fixture's name.
+!tests/fixtures/**
+tests/fixtures/**/.env
+tests/fixtures/**/.env.*
+!tests/fixtures/**/.env.example
