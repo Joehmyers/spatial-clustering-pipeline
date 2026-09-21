@@ -1,8 +1,9 @@
 # AGENTS.md
 
-Agent context for this repository: the canonical, tool-agnostic instruction
-file, auto-loaded at the start of every agent session. Claude Code reads it
-through a one-line `@AGENTS.md` import in `CLAUDE.md`.
+Agent context for this repository: the canonical instruction file, auto-loaded
+at the start of every agent session. It is tool-agnostic on purpose, so every
+agent works from one source of truth. Anything particular to a single tool
+belongs in that tool's own file, not here.
 
 Keep it short, and include only what an agent cannot infer from the code.
 
@@ -14,7 +15,7 @@ Keep it short, and include only what an agent cannot infer from the code.
 # Verify the repo: lint, tests, build. THE command; CI runs this exact script.
 ops/check.sh
 
-# Install dependencies (also runs automatically via SessionStart hook)
+# Install dependencies
 ops/setup.sh
 
 # Run locally: all seven stages on the committed fixture
@@ -34,7 +35,7 @@ ops/create-bucket.sh [bucket-name]
 # Fetch project data from Cloudflare R2 into ./data (config via .env; see .env.example)
 ops/fetch-data.sh [prefix]
 
-# Push created assets from ./assets to Cloudflare R2 (runs automatically via Stop hook)
+# Push created assets from ./assets to Cloudflare R2
 ops/push-assets.sh [prefix]
 ```
 
@@ -56,8 +57,6 @@ humans and CI all read means the answer to "is this green?" cannot drift.
 - `docs/`: `research/` (evidence), `specs/` (what and why), `plans/` (how),
   `decisions/` (the durable why), `diagrams/`, `style-guide.md`
 - `ops/`: infrastructure, verification and deployment scripts
-- `.claude/`: Claude Code configuration, committed: `skills/`, `agents/`,
-  `rules/` (path-scoped instructions), `settings.json` (permissions and hooks)
 - `.github/`: CI workflow and pull request template
 
 ---
@@ -85,8 +84,8 @@ line length 88). `ops/check.sh` runs `ruff check` and `ruff format --check`.
 
 **All prose in this repo follows [`docs/style-guide.md`](docs/style-guide.md)**:
 docs, specs, plans, decision records, commit messages, PR descriptions, code
-comments, identifiers, and error messages. Read it before writing anything longer than a
-sentence.
+comments, identifiers, and error messages. Read it before writing anything
+longer than a sentence.
 
 The test for every sentence: could a competent outsider understand it on the
 first read? If not, rewrite it. Orwell's six rules, in short:
@@ -103,12 +102,11 @@ phrasing is correct.
 
 Also: define every term of art on first use, use one name per concept, prefer
 numbers to adjectives ("cuts p95 from 800 ms to 120 ms", not "significantly
-faster"), spell in British English, and never use an em dash (—); use a comma, a colon, parentheses, or
-two sentences instead.
+faster"), spell in British English, and never use an em dash (—); use a comma,
+a colon, parentheses, or two sentences instead.
 
-The same rules live in `.claude/rules/writing.md`, repeated here so tools
-without path-scoped rules see them, and because they apply to prose that is
-not a file at all: commit messages, PR descriptions, error strings.
+These rules apply to prose that is not a file at all: commit messages, pull
+request descriptions, error strings.
 
 ---
 
@@ -121,9 +119,6 @@ not a file at all: commit messages, PR descriptions, error strings.
 - Every test asserts a concrete outcome. A test that cannot fail is not a test.
 - Write the test before the implementation when the file does not exist yet.
 - Run `ops/check.sh` after every implementation change to catch regressions.
-
-The same rules live in `.claude/rules/testing.md`, repeated here so tools
-without path-scoped rules see them.
 
 ---
 
@@ -180,36 +175,37 @@ proposing a change to any of these.
   hold an inversion, and cutting one by height gives the wrong cluster count.
 - Real inputs stay unconnected until their shape is described: ask rather than
   invent schemas (`RealInputsNotConnectedError` says what shape is expected).
-- Put created assets (generated files meant to outlive this machine) in `./assets/` (gitignored).
-  A `Stop` hook in `.claude/settings.json` uploads them to Cloudflare R2 after each agent turn,
-  so they are accessible from anywhere; retrieve them with `ops/fetch-data.sh assets`.
-  Without R2 credentials in `.env` the hook is a silent no-op, so a fresh clone needs no configuration.
-  Symlinks and secret-looking files (`.env*`, `*.pem`, `*.key`, `id_rsa*`, `secrets/`) are never uploaded.
-- Reading `.env` (and its variants), `*.pem`, `*.key`, `id_rsa*` and `secrets/`
-  is blocked by deny rules in `.claude/settings.json`; `.env.example` stays
-  readable on purpose. That is enforcement, not advice; do not work around it.
-  If a task genuinely needs a secret, ask for it.
+- Put created assets (generated files meant to outlive this machine) in
+  `./assets/` (gitignored) and push them with `ops/push-assets.sh`. Retrieve
+  them with `ops/fetch-data.sh assets`. Without R2 credentials in `.env` both
+  are a silent no-op, so a fresh clone needs no configuration.
+- Never read `.env` or its variants, `*.pem`, `*.key`, `id_rsa*` or
+  `secrets/`; `.env.example` is there to read instead. If a task genuinely
+  needs a secret, ask for it.
 
 ---
 
 ## Planning workflow
 
 For any change touching more than one file:
-1. **Explore**: read relevant files in plan mode (no edits)
-2. **Plan**: write a plan to `docs/plans/<feature>.md` (`/plan <feature>`)
+1. **Explore**: read the relevant files before editing any of them
+2. **Plan**: write a plan to `docs/plans/<feature>.md`
 3. **Implement**: code against the plan, run `ops/check.sh` after each step
 4. **Commit**: descriptive commit message, reference the plan file
 
-For larger features, start with a spec in `docs/specs/<feature>/spec.md`
-(`/spec <feature>`). One-sentence diff? Skip the plan. When the choice needs
-evidence rather than recall, run `/research <question>` first: it writes cited
-findings to `docs/research/`. When a change makes an architecturally
-significant decision, record it with `/decision <title>`.
+For larger features, write a spec to `docs/specs/<feature>/spec.md` first.
+One-sentence diff? Skip the plan. When a choice needs evidence rather than
+recall, research it against real sources and write cited findings to
+`docs/research/` before deciding. When a change makes an architecturally
+significant decision, record it in `docs/decisions/`.
+
+`docs/plans/nca-regionalisation.md` and
+`docs/specs/nca-regionalisation/spec.md` are worked examples of the detail
+each should reach.
 
 ---
 
 ## Personal overrides
 
 Put personal notes, local commands and machine-specific settings in
-`AGENTS.local.md` (gitignored). Claude Code auto-loads `CLAUDE.local.md`
-instead, so put overrides there (or make it one line: `@AGENTS.local.md`).
+`AGENTS.local.md`, which is gitignored. Never commit it.
