@@ -26,6 +26,11 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+*.egg-info/
+
+# Python tool caches
+.pytest_cache/
+.ruff_cache/
 
 # Build artifacts
 dist/
@@ -47,6 +52,9 @@ htmlcov/
 # Temporary files
 tmp/
 *.tmp
+
+# Pipeline run outputs (nca run ... --out runs/<name>)
+runs/
 
 # Local data fetched from Cloudflare R2 (ops/fetch-data.sh)
 data/

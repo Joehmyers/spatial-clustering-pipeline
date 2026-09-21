@@ -1,0 +1,44 @@
+# Settings for the fixture run (R17).
+#
+# Every path is relative to this file, so the fixture folder can move without
+# editing anything. The build window is one year, not the real "earliest data
+# to 31 Aug 2024", because the fixture's weather starts on 1 Sep 2023.
+
+data_source = "fixture"
+
+[layers]
+nca = { path = "nca.geojson", id_column = "NCA_ID" }
+pga = { path = "pga.geojson", id_column = "PGA_ID", parent_id_column = "NCA_ID" }
+ra = { path = "ra.geojson", id_column = "RA_ID", parent_id_column = "PGA_ID" }
+
+[inputs]
+points = "points.csv"
+weather = "weather"
+demand = "demand.csv"
+
+[windows]
+build_start = "2023-09-01"
+build_end = "2024-08-31"
+held_out_start = "2024-09-01"
+held_out_end = "2025-08-31"
+sealed_start = "2025-09-01"
+sealed_override = false
+
+[graph]
+# P18 sits on an island: its cell shares no edge with the mainland, so the
+# graph reaches it only through this link.
+manual_links = [["P18", "P12"]]
+disconnected_parts = "stop"
+
+[features]
+# The fixture leaves one day missing at one point on purpose, so the run must
+# say what to do about it or stop.
+missing_data = "drop_day"
+
+[cluster]
+number_of_regions = 2
+cuts_to_save = [2, 3]
+
+[evaluate]
+random_partitions = 500
+seed = 20260921

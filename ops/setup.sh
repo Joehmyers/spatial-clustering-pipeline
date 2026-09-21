@@ -22,7 +22,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 cd "$(ops_repo_root)" || exit 1
 
 # --- Configure your project here -------------------------------------------
-: "${SETUP_INSTALL:=}"   # e.g. npm ci / uv sync / poetry install / cargo fetch
+# Installs the nca package and its test tools. Editable, so a change in src/
+# takes effect without reinstalling.
+: "${SETUP_INSTALL:=python3 -m pip install --editable '.[dev]'}"
 # ---------------------------------------------------------------------------
 
 auto=0
