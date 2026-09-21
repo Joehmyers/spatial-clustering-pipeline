@@ -1,12 +1,10 @@
 # AGENTS.md
 
-Agent context for this repository. This is the canonical, tool-agnostic
-instruction file, auto-loaded at the start of every agent session (Claude Code,
-Cursor, Copilot, Codex, Aider, Gemini CLI, and other [AGENTS.md](https://agents.md)-aware
-tools). Claude Code reads it via a one-line `@AGENTS.md` import in `CLAUDE.md`.
+Agent context for this repository: the canonical, tool-agnostic instruction
+file, auto-loaded at the start of every agent session. Claude Code reads it
+through a one-line `@AGENTS.md` import in `CLAUDE.md`.
 
-Keep this file under ~200 lines. Include only what an agent cannot infer from
-reading the code.
+Keep it short, and include only what an agent cannot infer from the code.
 
 ---
 
@@ -19,8 +17,16 @@ ops/check.sh
 # Install dependencies (also runs automatically via SessionStart hook)
 ops/setup.sh
 
-# Run locally
-<fill-in>
+# Run locally: all seven stages on the committed fixture
+SETTINGS=tests/fixtures/nca-regionalisation/settings.toml
+nca run all --settings $SETTINGS --out runs/fixture
+
+# One stage alone; it reads the earlier stages' saved outputs from --out
+nca run cluster --settings $SETTINGS --out runs/fixture
+
+# List the stages in order; rewrite the fixture from its formulas
+nca stages
+nca fixture --out tests/fixtures/nca-regionalisation
 
 # Create the project's Cloudflare R2 bucket (wrangler; bucket = repo name)
 ops/create-bucket.sh [bucket-name]
@@ -32,35 +38,46 @@ ops/fetch-data.sh [prefix]
 ops/push-assets.sh [prefix]
 ```
 
-`ops/check.sh` and `ops/setup.sh` each hold a short configuration block at the
-top; fill in your project's lint, test, build, and install commands there. Put
-them in the script, not in this file: one place that agents, humans, and CI all
-read means the answer to "is this green?" cannot drift between them.
+`ops/check.sh` and `ops/setup.sh` each hold their commands in a configuration
+block at the top. Put them there, not in this file: one place that agents,
+humans and CI all read means the answer to "is this green?" cannot drift.
 
 ---
 
 ## Architecture
 
-- `src/`: product source code
+- `src/nca/`: one module per stage (`geometry`, `graph`, `features`,
+  `cluster`, `mapping`, `evaluate`, `report`), plus `settings`, `inputs`
+  (the demand firewall and sealed-window gate), `runrecord`, `outputs`,
+  `pipeline` and `cli`
 - `tests/`: test suite (the agent's verification target)
-- `tests/fixtures/`: files tests read as input or compare output against;
-  its README has the size and naming rules
-- `docs/research/`: sourced findings behind a decision (the evidence)
-- `docs/specs/`: feature specs (what/why)
-- `docs/plans/`: implementation plans (how/steps)
-- `docs/decisions/`: decision records (the durable *why*)
-- `docs/diagrams/`: architecture diagrams (`system-diagram.md`: Mermaid graph + timeline views)
-- `ops/`: infrastructure, verification, and deployment scripts
-- `.claude/`: Claude Code configuration (committed to git): `skills/` (workflows,
-  also usable as `/name`), `agents/` (subagents), `rules/` (path-scoped instructions),
-  `settings.json` (permissions and hooks)
+- `tests/fixtures/`: files tests read as input or compare against; its README
+  has the size and naming rules
+- `docs/`: `research/` (evidence), `specs/` (what and why), `plans/` (how),
+  `decisions/` (the durable why), `diagrams/`, `style-guide.md`
+- `ops/`: infrastructure, verification and deployment scripts
+- `.claude/`: Claude Code configuration, committed: `skills/`, `agents/`,
+  `rules/` (path-scoped instructions), `settings.json` (permissions and hooks)
 - `.github/`: CI workflow and pull request template
 
 ---
 
 ## Code style
 
-<fill-in>
+Python 3.11, formatted and linted by `ruff` (settings in `pyproject.toml`,
+line length 88). `ops/check.sh` runs `ruff check` and `ruff format --check`.
+
+- **One module per stage** in `src/nca/`, each with
+  `run(settings, run_directory, record)`. Stages never hand objects to each
+  other: they read each other's saved files.
+- **Full words in names**, and units on anything measured
+  (`shared_edge_metres`, `area_square_metres`). Every length is metres.
+- **Settings, not constants.** Anything a reviewer might want to change goes
+  in `src/nca/settings.py` with a default. Only a tolerance that absorbs
+  floating-point noise is a constant, named at the top of its module.
+- **Errors say what to do.** Each class in `src/nca/errors.py` names the rule
+  it protects; its message names the setting that changes the outcome.
+- **Docstrings carry the why**, and cite the requirement by number.
 
 ---
 
@@ -89,10 +106,9 @@ numbers to adjectives ("cuts p95 from 800 ms to 120 ms", not "significantly
 faster"), spell in British English, and never use an em dash (—); use a comma, a colon, parentheses, or
 two sentences instead.
 
-The same rules live in `.claude/rules/writing.md`, which Claude Code loads when
-you touch a Markdown file. They are repeated here so tools without path-scoped
-rules still see them, and because they apply to prose that is not a file at
-all: commit messages, PR descriptions, error strings.
+The same rules live in `.claude/rules/writing.md`, repeated here so tools
+without path-scoped rules see them, and because they apply to prose that is
+not a file at all: commit messages, PR descriptions, error strings.
 
 ---
 
@@ -106,9 +122,8 @@ all: commit messages, PR descriptions, error strings.
 - Write the test before the implementation when the file does not exist yet.
 - Run `ops/check.sh` after every implementation change to catch regressions.
 
-The same rules live in `.claude/rules/testing.md`, which Claude Code loads only
-when you touch a test file. They are repeated here so tools without path-scoped
-rules still see them.
+The same rules live in `.claude/rules/testing.md`, repeated here so tools
+without path-scoped rules see them.
 
 ---
 
@@ -125,19 +140,16 @@ rules still see them.
 ## Decisions
 
 `docs/decisions/` holds the project's **decision records**: short, immutable
-Markdown files, numbered `D-0001` and up, that record *why* a significant,
-hard-to-reverse choice was made. They are the historical "why"; this file is the
-active "what". `docs/decisions/README.md` owns the format and workflow; the
-rules below are repeated here so agents see them without opening it.
+Markdown files, numbered `D-0001` and up, recording *why* a hard-to-reverse
+choice was made. They are the historical "why"; this file is the active "what".
+`docs/decisions/README.md` owns the format; these rules are repeated here.
 
-- **Before proposing an architectural change, consult `docs/decisions/README.md`
-  and read any relevant record.** Do not contradict an `accepted` decision.
-- If a decision genuinely needs to change, ask a human first, then write a
-  **new** record that supersedes the old one (copy `docs/decisions/template.md`).
-  Never rewrite an accepted record.
-- Log only **architecturally significant** decisions (costly to change; would
-  need coordination, migration, or risk management to reverse). Skip trivial,
-  easily-reversed choices a linter or convention already covers.
+- **Read the index and any relevant record before proposing an architectural
+  change.** Do not contradict an `accepted` decision.
+- If one genuinely needs to change, ask a human, then write a **new** record
+  that supersedes it. Never rewrite an accepted record.
+- Log only **architecturally significant** decisions: ones costly to change or
+  needing coordination, migration or risk management to reverse.
 
 ---
 
@@ -149,11 +161,25 @@ proposing a change to any of these.
 - **Cloud storage is Cloudflare R2**, bucket named after the repository (override
   with `R2_BUCKET`). Lifecycle via wrangler, bulk transfer via the S3-compatible
   API. See [D-0001](docs/decisions/D-0001-use-cloudflare-r2-for-project-storage.md).
+- **The weather map is built from weather alone**: DTN virtual points, no
+  demand, no breakdown weights, no current NCA, PGA or RA labels. Operational
+  layers enter the build only as a dissolved outline to clip cells to. See
+  [D-0003](docs/decisions/D-0003-build-the-weather-map-from-weather-alone.md).
 
 ---
 
 ## Environment / gotchas
 
+- Build stages never read demand; only evaluate may (R12). The firewall lives
+  in `src/nca/inputs.py`, and a test fails if a build stage even mentions it.
+- Never request data on or after `windows.sealed_start`; the override needs a
+  human's say-so, and every run records that it was used (R13).
+- Normals and scaling come from the build window only, are stored, and the
+  held-out window reuses them unchanged (R14).
+- Cut the tree by merge order, never by height (R6): a constrained tree can
+  hold an inversion, and cutting one by height gives the wrong cluster count.
+- Real inputs stay unconnected until their shape is described: ask rather than
+  invent schemas (`RealInputsNotConnectedError` says what shape is expected).
 - Put created assets (generated files meant to outlive this machine) in `./assets/` (gitignored).
   A `Stop` hook in `.claude/settings.json` uploads them to Cloudflare R2 after each agent turn,
   so they are accessible from anywhere; retrieve them with `ops/fetch-data.sh assets`.
@@ -174,24 +200,16 @@ For any change touching more than one file:
 3. **Implement**: code against the plan, run `ops/check.sh` after each step
 4. **Commit**: descriptive commit message, reference the plan file
 
-For larger features, start with a spec in `docs/specs/<feature>/spec.md` first
-(`/spec <feature>`). One-sentence diff? Skip the plan.
-
-When the choice needs evidence rather than recall (which library, which
-protocol, what the prior art is), run `/research <question>` first. It fans out
-subagents over real sources and writes cited findings to `docs/research/`.
-
-When a change makes an architecturally significant decision, record it in
-`docs/decisions/` (`/decision <title>`). Cite the research document in it.
-
-`docs/plans/examples/` holds a filled-in plan from this template's own history;
-read it for the level of detail a plan should reach.
+For larger features, start with a spec in `docs/specs/<feature>/spec.md`
+(`/spec <feature>`). One-sentence diff? Skip the plan. When the choice needs
+evidence rather than recall, run `/research <question>` first: it writes cited
+findings to `docs/research/`. When a change makes an architecturally
+significant decision, record it with `/decision <title>`.
 
 ---
 
 ## Personal overrides
 
-Add your personal notes, local commands, and machine-specific settings to
-`AGENTS.local.md` (gitignored). Tools that support local override files pick
-it up; Claude Code does not, and instead auto-loads `CLAUDE.local.md`, so put
-overrides there (or make it one line: `@AGENTS.local.md`).
+Put personal notes, local commands and machine-specific settings in
+`AGENTS.local.md` (gitignored). Claude Code auto-loads `CLAUDE.local.md`
+instead, so put overrides there (or make it one line: `@AGENTS.local.md`).

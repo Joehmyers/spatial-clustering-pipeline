@@ -1,0 +1,16 @@
+{
+"type": "FeatureCollection",
+"name": "ra",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"xy_coordinate_resolution": 1e-07,
+"features": [
+{ "type": "Feature", "properties": { "RA_ID": "RA-NE-1", "PGA_ID": "PGA-NE" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -0.6998024, 52.927789 ], [ -0.6930259, 53.1524584 ], [ -1.4406346, 53.1583146 ], [ -1.4435349, 52.9335979 ], [ -0.6998024, 52.927789 ] ] ], [ [ [ 0.4509325, 52.8871417 ], [ 0.4560136, 52.9769519 ], [ 0.3072126, 52.979934 ], [ 0.3024387, 52.8901141 ], [ 0.4509325, 52.8871417 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-NE-2", "PGA_ID": "PGA-NE" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -0.6930259, 53.1524584 ], [ -0.6861581, 53.3771187 ], [ -1.4376953, 53.3830226 ], [ -1.4406346, 53.1583146 ], [ -0.6930259, 53.1524584 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-NW-1", "PGA_ID": "PGA-NW" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -1.4435349, 52.9335979 ], [ -1.4406346, 53.1583146 ], [ -2.1883997, 53.1594774 ], [ -2.1874209, 52.9347513 ], [ -1.4435349, 52.9335979 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-NW-2", "PGA_ID": "PGA-NW" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -1.4406346, 53.1583146 ], [ -1.4376953, 53.3830226 ], [ -2.1893916, 53.3841949 ], [ -2.1883997, 53.1594774 ], [ -1.4406346, 53.1583146 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-SE-1", "PGA_ID": "PGA-SE" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -0.7130882, 52.4784228 ], [ -0.7064893, 52.7031105 ], [ -1.4463968, 52.7088725 ], [ -1.449221, 52.4841384 ], [ -0.7130882, 52.4784228 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-SE-2", "PGA_ID": "PGA-SE" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -0.7064893, 52.7031105 ], [ -0.6998024, 52.927789 ], [ -1.4435349, 52.9335979 ], [ -1.4463968, 52.7088725 ], [ -0.7064893, 52.7031105 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-SW-1", "PGA_ID": "PGA-SW" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -1.449221, 52.4841384 ], [ -1.4463968, 52.7088725 ], [ -2.1864552, 52.7100166 ], [ -2.1855021, 52.4852733 ], [ -1.449221, 52.4841384 ] ] ] ] } },
+{ "type": "Feature", "properties": { "RA_ID": "RA-SW-2", "PGA_ID": "PGA-SW" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -1.4463968, 52.7088725 ], [ -1.4435349, 52.9335979 ], [ -2.1874209, 52.9347513 ], [ -2.1864552, 52.7100166 ], [ -1.4463968, 52.7088725 ] ] ] ] } }
+]
+}

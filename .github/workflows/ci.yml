@@ -25,8 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Add your language toolchain here (actions/setup-node,
-      # actions/setup-python, dtolnay/rust-toolchain, …) before setup runs.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: ops/setup.sh

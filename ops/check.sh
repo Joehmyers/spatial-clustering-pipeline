@@ -30,9 +30,12 @@ repo_root="$(ops_repo_root)"
 cd "$repo_root" || exit 1
 
 # --- Configure your project here -------------------------------------------
-: "${CHECK_LINT:=}"    # e.g. npm run lint       / ruff check .      / cargo clippy
-: "${CHECK_TEST:=}"    # e.g. npm test           / pytest            / cargo test
-: "${CHECK_BUILD:=}"   # e.g. npm run build      / python -m build   / cargo build
+: "${CHECK_LINT:=ruff check . && ruff format --check .}"
+: "${CHECK_TEST:=python3 -m pytest}"
+# No build step: this is a pure Python package, installed in place by
+# ops/setup.sh. Leave this empty rather than inventing a command that only
+# looks like verification.
+: "${CHECK_BUILD:=}"
 # ---------------------------------------------------------------------------
 
 strict=0
