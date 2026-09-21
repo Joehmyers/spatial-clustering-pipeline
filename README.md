@@ -82,7 +82,8 @@ them rather than trusting whoever runs the code.
 
 ```
 spatial-clustering-pipeline/
-├── AGENTS.md                 # Agent context; CLAUDE.md is a one-line import of it
+├── AGENTS.md                 # Agent context, tool-agnostic: the one source of truth
+├── CLAUDE.md                 # Imports AGENTS.md, then what is particular to Claude Code
 ├── src/nca/                  # One module per stage, plus settings, inputs, outputs, run record
 ├── tests/                    # One test file per stage, plus the cross-cutting ones
 │   └── fixtures/             # The fixture set, with a README explaining its formulas
